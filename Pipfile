@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "5.1.4"
+"pdfminer.six" = "20240706"
+python-dotenv = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
