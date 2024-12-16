@@ -12,55 +12,66 @@
   <div class="container main-content center d-col gap-2">
     <input type="file" accept=".pdf">
     <textarea id="response-area" class="response-area expandable" name="enter-prompt" rows="4" cols="50" disabled></textarea>
-    <button type="submit" class="btn btn-primary">Resumir</button>
+    <button class="btn btn-primary">Resumir</button>
   </div>
 </form>
 
 <script>
   $(() => {
-    $('.form-content').on('submit', (e) => {
+    const formContent = $('.form-content');
+    const responseArea = $('#response-area');
+    const fileInput = $('input[type=file]');
+  
+  
+    const handleError = (message, error = null) => {
+      console.error(message, error);
+      alert(message);
+      stopLoader();
+    };
+  
+    formContent.on('submit', async (e) => {
       e.preventDefault();
-      const response_area = $('#response-area');
-      const fileInput = $('input[type=file]')[0];
-
-      if (!fileInput.files.length) {
-        alert('No file selected.');
-        return;
+  
+      if (!fileInput[0].files.length) {
+        return handleError('Nenhum arquivo selecionado.');
       }
-
-      const file = fileInput.files[0];
+  
+      const file = fileInput[0].files[0];
       const formData = new FormData();
       formData.append('to_resume_file', file);
-
+  
       const url = "{% url 'core:resume.generate' %}";
-
-      startLoader(); 
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': getCsrfToken()
-        },
-        body: formData
-      })
-      .then(response => {
+  
+      try {
+        startLoader();
+  
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCsrfToken()
+          },
+          body: formData
+        });
+  
         if (!response.ok) {
-          throw new Error('Erro ao enviar arquivo');
+          throw new Error(`Erro ao enviar arquivo: ${response.statusText}`);
         }
-        return response.json();
-      })
-      .then(response_json => {
-        response_area.text(response_json.data);
-
-        if (response_json.data.trim() !== '') {
-          response_area.addClass('filled');
+  
+        const responseJson = await response.json();
+  
+        if (responseJson.data?.trim()) {
+          responseArea.text(responseJson.data).addClass('filled');
+        } else {
+          responseArea.text('Resposta vazia.').removeClass('filled');
         }
-        stopLoader(); 
-      })
-      .catch(error => {
-        console.error('Erro no upload:', error);
-        stopLoader(); 
-      });
+  
+      } catch (error) {
+        handleError('Erro no upload do arquivo. Por favor, tente novamente.', error);
+      } finally {
+        stopLoader();
+      }
     });
   });
+  
 </script>
 {% endblock content %}

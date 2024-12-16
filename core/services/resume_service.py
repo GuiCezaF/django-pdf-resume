@@ -24,6 +24,5 @@ class ResumeService:
 
         self.logger.info("Request enviado")
         resumo = self.__generateResume(file_text)
-        self.logger.debug("Resumo gerado", resumo)
 
         return resumo
