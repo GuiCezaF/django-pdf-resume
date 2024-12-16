@@ -1,55 +1,66 @@
 {% extends "base.html" %}
 
+{% load static %}
+
+{% block extrahead %}
+  <link rel="stylesheet" href="{% static "css/home/styles.css" %}">
+{% endblock extrahead %}
+
 {% block content %}
-  <form class="form-content">
-    {% csrf_token %}
-    <div class="container main-content center d-col gap-2">
-      <input type="file" accept=".pdf">
-      <textarea name="enter-prompt" rows="4" cols="50" disabled>{{ ia_response }}</textarea>
-      <button type="submit" class="btn btn-primary">Resumir</button>
-    </div>
-  </form>
+<form class="form-content">
+  {% csrf_token %}
+  <div class="container main-content center d-col gap-2">
+    <input type="file" accept=".pdf">
+    <textarea id="response-area" class="response-area expandable" name="enter-prompt" rows="4" cols="50" disabled></textarea>
+    <button type="submit" class="btn btn-primary">Resumir</button>
+  </div>
+</form>
 
-  <script>
-    $(() => {
-      $('form').on('submit', (e) => {
-        e.preventDefault();
+<script>
+  $(() => {
+    $('.form-content').on('submit', (e) => {
+      e.preventDefault();
+      const response_area = $('#response-area');
+      const fileInput = $('input[type=file]')[0];
 
-        const fileInput = $('input[type=file]')[0];
+      if (!fileInput.files.length) {
+        alert('No file selected.');
+        return;
+      }
 
-        if (!fileInput.files.length) {
-          alert('No file selected.');
-          return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('to_resume_file', file);
+
+      const url = "{% url 'core:resume.generate' %}";
+
+      startLoader(); 
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erro ao enviar arquivo');
         }
+        return response.json();
+      })
+      .then(response_json => {
+        response_area.text(response_json.data);
 
-        const file = fileInput.files[0];
-        const formData = new FormData();
-        formData.append('to_resume_file', file);
-
-        const url = "{% url 'core:resume.generate' %}";
-
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCsrfToken()
-          },
-          body: formData
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Erro ao enviar arquivo');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Upload bem-sucedido:', data);
-        })
-        .catch(error => {
-          console.error('Erro no upload:', error);
-        });
+        if (response_json.data.trim() !== '') {
+          response_area.addClass('filled');
+        }
+        stopLoader(); 
+      })
+      .catch(error => {
+        console.error('Erro no upload:', error);
+        stopLoader(); 
       });
     });
-
-    
-  </script>
+  });
+</script>
 {% endblock content %}
