@@ -1,7 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <form class="form-content">
+    {% csrf_token %}
+    <div class="container main-content center d-col gap-2">
+      <input type="file" accept=".pdf">
+      <textarea name="enter-prompt" rows="4" cols="50" disabled>{{ ia_response }}</textarea>
+      <button type="submit" class="btn btn-primary">Resumir</button>
+    </div>
+  </form>
 
-  <p>Conteudo</p>
+  <script>
+    $(() => {
+      $('form').on('submit', (e) => {
+        e.preventDefault();
 
+        const fileInput = $('input[type=file]')[0];
+
+        if (!fileInput.files.length) {
+          alert('No file selected.');
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('to_resume_file', file);
+
+        const url = "{% url 'core:resume.generate' %}";
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCsrfToken()
+          },
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro ao enviar arquivo');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Upload bem-sucedido:', data);
+        })
+        .catch(error => {
+          console.error('Erro no upload:', error);
+        });
+      });
+    });
+
+    
+  </script>
 {% endblock content %}

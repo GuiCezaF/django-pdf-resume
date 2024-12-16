@@ -13,13 +13,19 @@
 
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    
+    <!-- my scripts -->
+    <script src="{% static "js/getCsrfToken.js" %}"></script>
   </head>
   <body>
-    <main>
-      {% block content %}{% endblock content %}
-    </main>
-    <footer>
-      <p>&copy; 2024 PDF Resumer</p>
-  </footer>
+    <div class="container">
+      <h1 class="center">Resumir PDF</h1>
+      <main>
+        {% block content %}{% endblock content %}
+      </main>
+    </div>
+    <footer class="base-footer">
+        <p>&copy; 2024 PDF Resumer</p>
+    </footer>
   </body>
 </html>
