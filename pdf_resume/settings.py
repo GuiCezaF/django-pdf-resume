@@ -31,6 +31,7 @@ DEBUG = bool(int(os.getenv("DEBUG")))
 
 ALLOWED_HOSTS = [
     '0.0.0.0',
+    'localhost'
 ]
 
 
