@@ -22,7 +22,6 @@
     const responseArea = $('#response-area');
     const fileInput = $('input[type=file]');
   
-  
     const handleError = (message, error = null) => {
       console.error(message, error);
       alert(message);
@@ -64,9 +63,12 @@
         } else {
           responseArea.text('Resposta vazia.').removeClass('filled');
         }
-  
+        M.toast({html: 'PDF resumido com sucesso', classes: 'green'})
+        
       } catch (error) {
         handleError('Erro no upload do arquivo. Por favor, tente novamente.', error);
+
+        M.toast({html: 'Falha ao resumir PDF', classes: 'red'})
       } finally {
         stopLoader();
       }
