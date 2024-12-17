@@ -24,11 +24,8 @@ def generate_resume(request: HttpRequest):
                 return JsonResponse({'message': 'Tipo de arquivo não suportado'}, status=400)
 
             resume_service = ResumeService()
-
             resumed_text = resume_service.resume(to_resume_file)
             if resumed_text:
-                resume_service.save(to_resume_file, resumed_text)
-                logger.info("Arquivo resumido com sucesso.")
                 return JsonResponse({'message': 'success', 'data': resumed_text}, status=200)
             else:
                 logger.error("Falha ao processar o arquivo.", None)
